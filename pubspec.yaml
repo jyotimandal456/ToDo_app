@@ -16,6 +16,8 @@ dependencies:
   intl: ^0.20.2
   flutter_slidable: ^4.0.3
   table_calendar: ^3.1.2
+  image_picker: ^1.2.2
+  fluttertoast: ^9.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -32,6 +34,7 @@ flutter:
     - assets/img6.jpeg
     - assets/img7.jpeg
     - assets/img8.jpeg
+    - assets/OIP (5).jpeg
 
   # fonts:
   #   - family: Poppins

@@ -190,7 +190,7 @@ class TaskScreen extends StatelessWidget {
                             provider.controller.clear();
                             provider.descriptionController.clear();
                             provider.datecontroller.clear();
-
+                           provider.toast();
                             Navigator.pop(context);
                           }
                         },
