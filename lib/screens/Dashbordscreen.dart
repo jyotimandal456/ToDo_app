@@ -41,19 +41,26 @@ class _DashbordscreenState extends State<Dashbordscreen> {
             },
           ),
           SizedBox(width:15),
-          Padding(
+          Consumer<HomeProvider>(builder: (context,provider,_){
+            return  Padding(
               padding:EdgeInsetsGeometry.only(right: 15),
-          child:GestureDetector(
-          onTap:(){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfileScreen(),));
-               },
+              child:GestureDetector(
+                onTap:(){
+                  provider.selectImage();
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfileScreen(),));
+                },
 
-          child:   CircleAvatar(
-            backgroundColor: Colors.purple.shade50,
-            radius: 16,
-            child: Icon(Icons.person),
-          ),
-          ),
+                child:   CircleAvatar(
+                  backgroundColor: Colors.purple.shade50,
+                  backgroundImage:provider.profileImage!=null?
+                  MemoryImage(provider.profileImage!):AssetImage('assets/OIP (5).jpeg') as ImageProvider,
+                  radius: 16,
+                 // child: Icon(Icons.person),
+                ),
+              ),
+
+            );
+          },
 
           ),
         ],

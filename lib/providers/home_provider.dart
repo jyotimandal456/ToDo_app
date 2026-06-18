@@ -1,4 +1,7 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class HomeProvider extends ChangeNotifier {
   TextEditingController _controller = TextEditingController();
@@ -12,21 +15,25 @@ class HomeProvider extends ChangeNotifier {
 
   TextEditingController _timecontroller =TextEditingController();
   TextEditingController get timecontroller=>_timecontroller;
-  // final List<TaskModel> _tasks = [];
-  //
-  // List<TaskModel> get tasks => _tasks;
-  //
-  // void addTask(
-  //     String title,
-  //     DateTime date) {
-  //   _tasks.add(
-  //     TaskModel(
-  //       title: title,
-  //       date: date,
-  //     ),
-  //   );
-  //   notifyListeners();
-  // }
+
+  void toast(){
+   Fluttertoast.showToast(msg: 'Task created Successfuly');
+  }
+
+  Uint8List? profileImage;
+  Future<Uint8List?> pickImage(ImageSource source)async{
+    final ImagePicker img=ImagePicker();
+
+    XFile? file =await img.pickImage(source: source);
+    if(file!=null){
+      return await file.readAsBytes();
+    }
+    return null;
+  }
+  Future<void> selectImage()async{
+    profileImage =await pickImage(ImageSource.gallery);
+    notifyListeners();
+  }
 
   List<Habit> get todayHabits {
    // DateTime today = DateTime.now();
@@ -144,7 +151,9 @@ class HomeProvider extends ChangeNotifier {
     _isDarkMode = !_isDarkMode;
     notifyListeners();
   }
+
   }
+
 
 
 class Habit {
