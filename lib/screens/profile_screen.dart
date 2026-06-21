@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:untitled/Colors/custom_colors.dart';
 import 'package:untitled/providers/home_provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:untitled/screens/Introscreen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -134,7 +135,7 @@ class ProfileScreen extends StatelessWidget {
               SizedBox(height: 30),
               ElevatedButton.icon(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.push(context,MaterialPageRoute(builder:(_)=>Homescreen ()));
                 },
                 icon: Icon(Icons.logout),
                 label: Text(

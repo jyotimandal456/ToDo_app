@@ -45,9 +45,12 @@ class _MainscreenState extends State<Mainscreen> {
           shape:  CircleBorder(),
           backgroundColor: CustomColors.primary(context),
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => TaskScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (_) => TaskScreen(editIndex: null,)));
           },
-          child:  Icon(Icons.add_rounded),
+          child:  Icon(Icons.add_rounded,
+          color: CustomColors.subtitle(context),
+            fontWeight: FontWeight.bold,
+          ),
         ),
         // child: FloatingActionButton(
         //   onPressed: () {
@@ -121,7 +124,7 @@ class _MainscreenState extends State<Mainscreen> {
             : null,
         child: Icon(
           icon,
-          color: selected ? Colors.black : Colors.grey,
+          color: selected ? Colors.black : Colors.white,
           size: 25,
         ),
       ),

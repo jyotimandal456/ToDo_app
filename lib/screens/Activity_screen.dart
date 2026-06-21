@@ -9,64 +9,37 @@ class ActivityScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:CustomColors.background(context),
+      backgroundColor: CustomColors.background(context),
+      appBar: AppBar(
+        backgroundColor: CustomColors.appBar(context),
+        title: Text("Tasks",
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: CustomColors.text(context),
+          ),
+        ),
+      ),
+
       body: Consumer<HomeProvider>(
-        builder: (context, provider, child) {
-          return Column(
-            children: [
-             SizedBox(height: 20),
+        builder: (context, provider, _) {
+          final tasks = provider.foundTasks.isNotEmpty ? provider.foundTasks : provider.data;
+          return ListView.builder(
+            itemCount: tasks.length,
+            itemBuilder: (context, index) {
+              final task = tasks[index];
 
-              Padding(
-                padding: EdgeInsets.all(16),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Tasks",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: CustomColors.text(context),
-                    ),
-                  ),
+              return Card(
+                color: CustomColors.surface(context),
+                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ListTile(
+                  leading: Text(task['time']?.toString() ?? ''),
+                  title: Text(task['title']?.toString() ?? ''),
+                  subtitle: Text(task['description']?.toString() ?? ''),
+                  trailing: Text(task['date']?.toString() ?? ''),
                 ),
-              ),
-
-              Expanded(
-                child: provider.todayHabits.isEmpty
-                    ?  Center(
-                  child: Text(
-                    "No Tasks For Today",
-                    style: TextStyle(
-                      fontSize: 18,
-                      color:CustomColors.text(context),
-                    ),
-                  ),
-                )
-                    : ListView.builder(
-                  itemCount: provider.todayHabits.length,
-                  itemBuilder: (context, index) {
-                    final habit = provider.todayHabits[index];
-
-                    return Card(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: CheckboxListTile(
-                        value: habit.isCompleted,
-                        onChanged: (_) {
-                          provider.toggleTask(habit);
-                        },
-                        title: Text(habit.title),
-                        subtitle: Text(
-                          "${habit.description}/${habit.time}",
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+              );
+            },
           );
         },
       ),
