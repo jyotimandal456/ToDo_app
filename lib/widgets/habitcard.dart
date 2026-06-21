@@ -3,7 +3,7 @@ import 'package:untitled/Colors/custom_colors.dart';
 import 'package:untitled/providers/home_provider.dart';
 
 class Habitcard extends StatelessWidget {
-  final Habit habit;
+  final Map<String, dynamic>habit;
 
   const Habitcard({
     super.key,
@@ -22,7 +22,7 @@ class Habitcard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            habit.date,
+            habit['habit'],
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -32,7 +32,7 @@ class Habitcard extends StatelessWidget {
            SizedBox(height: 8),
 
           Text(
-            habit.description,
+            habit['discription'],
             style:  TextStyle(
               fontSize: 14,
             ),
@@ -41,7 +41,7 @@ class Habitcard extends StatelessWidget {
           SizedBox(height: 8),
 
           Text(
-            habit.title,
+            habit['title'],
             style:TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,

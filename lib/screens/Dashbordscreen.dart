@@ -7,6 +7,8 @@ import 'package:untitled/screens/profile_screen.dart';
 import 'package:untitled/widgets/calendar.dart';
 import 'package:untitled/widgets/habitcard.dart';
 
+import 'Task_screen.dart';
+
 class Dashbordscreen extends StatefulWidget {
   Dashbordscreen({super.key});
 
@@ -15,6 +17,13 @@ class Dashbordscreen extends StatefulWidget {
 }
 
 class _DashbordscreenState extends State<Dashbordscreen> {
+ @override
+  void initState() {
+    final HomeProvider hp=Provider.of<HomeProvider>(context,listen: false);
+    super.initState();
+    hp.getData();
+
+ }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,11 +95,8 @@ class _DashbordscreenState extends State<Dashbordscreen> {
                 style: TextStyle(
                   color: CustomColors.text(context),
                 ),
-                onChanged: (value){
-                  Provider.of<HomeProvider>(
-                    context,
-                    listen: false,
-                  ).runFilter(value);
+                onChanged: (value) {
+                  Provider.of<HomeProvider>(context, listen: false).runFilter(value);
                 },
                 decoration: InputDecoration(
                   hintText: 'Search By name',
@@ -117,44 +123,53 @@ class _DashbordscreenState extends State<Dashbordscreen> {
               SizedBox(height: 16),
               Consumer<HomeProvider>(
                 builder: (context,provider,_){
-                  return  Expanded(
+                  return Expanded(
                     child: ListView.builder(
-                      shrinkWrap: true,
                       itemCount: provider.foundTasks.length,
                       itemBuilder: (context, index) {
+                        final task = provider.foundTasks[index];
+                        final originalIndex = provider.data.indexOf(task);
                         return Slidable(
-                            key: ValueKey(index),
-                            endActionPane: ActionPane(
-                              motion: StretchMotion(),
-                              children: [
-                                SlidableAction(
-                                  onPressed: (context) {
-                                    provider.delete(index);
-                                  },
-                                  borderRadius: BorderRadius.circular(20),
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    //vertical: 10,
-                                  ),
-                                  backgroundColor: Colors.red.shade300,
-                                  foregroundColor:Colors.black,
-                                  icon: Icons.delete,
-                                  label: 'Delete',
-                                ),
-                               // Icon(Icons.edit),
-                              ],
-                            ),
-                         child: Card(
-                          color: CustomColors.surface( context),
-                          shadowColor:CustomColors.shadow(context),
-                          margin: EdgeInsetsGeometry.symmetric(vertical: 6),
-                          child: ListTile(
-                            title: Text(provider.foundTasks[index].title),
-                            subtitle: Text(provider.foundTasks[index].description),
-                            trailing:Text(provider.foundTasks[index].date),
-                            //leading: Text(provider.foundTasks[index].time),
+                          key: ValueKey(index),
+                          endActionPane: ActionPane(
+                            motion:  StretchMotion(),
+                            children: [
+                              SlidableAction(
+                                onPressed: (context) {
+                                  provider.controller.text = task['title']?.toString() ?? '';
+                                  provider.descriptionController.text = task['description']?.toString() ?? '';
+                                  provider.datecontroller.text = task['date']?.toString() ?? '';
+                                  provider.timecontroller.text = task['time']?.toString() ?? '';
+                                  Navigator.push(context,
+                                    MaterialPageRoute(
+                                      builder: (context) => TaskScreen(editIndex: index,),
+                                    ),
+                                  );
+                                },
+                                icon: Icons.edit,
+                                label: 'Edit',
+                              ),
+                              SlidableAction(
+                                onPressed: (context) async {
+                                  final task = provider.foundTasks[index];
+                                  await provider.deleteData(task['id']);
+                                  provider.delete(task);
+                                },
+                                backgroundColor: Colors.red,
+                                icon: Icons.delete,
+                                label: 'Delete',
+                              ),
+                            ],
                           ),
-                        ),
+                          child: Card(
+                            color: CustomColors.surface(context),
+                            child:ListTile(
+                              leading: Text(provider.foundTasks[index]['time']?.toString() ?? '',),
+                              title: Text(provider.foundTasks[index]['title']?.toString() ?? '',),
+                              subtitle: Text(provider.foundTasks[index]['description']?.toString() ?? '',),
+                              trailing: Text(provider.foundTasks[index]['date']?.toString() ?? '',),
+                            )
+                          ),
                         );
                       },
                     ),

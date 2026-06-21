@@ -1,54 +1,88 @@
+import 'dart:convert';
+import 'dart:ffi';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class HomeProvider extends ChangeNotifier {
+  List<dynamic> _data = [];
+
+  List<dynamic> get data => _data;
+
+
   TextEditingController _controller = TextEditingController();
+
   TextEditingController get controller => _controller;
 
   TextEditingController _datecontroller = TextEditingController();
+
   TextEditingController get datecontroller => _datecontroller;
 
   TextEditingController _descriptionController = TextEditingController();
+
   TextEditingController get descriptionController => _descriptionController;
 
-  TextEditingController _timecontroller =TextEditingController();
-  TextEditingController get timecontroller=>_timecontroller;
+  TextEditingController _timecontroller = TextEditingController();
 
-  void toast(){
-   Fluttertoast.showToast(msg: 'Task created Successfuly');
+  TextEditingController get timecontroller => _timecontroller;
+
+  void toast() {
+    Fluttertoast.showToast(msg: 'Task created Successfuly');
   }
 
   Uint8List? profileImage;
-  Future<Uint8List?> pickImage(ImageSource source)async{
-    final ImagePicker img=ImagePicker();
 
-    XFile? file =await img.pickImage(source: source);
-    if(file!=null){
+  Future<Uint8List?> pickImage(ImageSource source) async {
+    final ImagePicker img = ImagePicker();
+
+    XFile? file = await img.pickImage(source: source);
+    if (file != null) {
       return await file.readAsBytes();
     }
     return null;
   }
-  Future<void> selectImage()async{
-    profileImage =await pickImage(ImageSource.gallery);
+
+  Future<void> selectImage() async {
+    profileImage = await pickImage(ImageSource.gallery);
     notifyListeners();
   }
 
-  List<Habit> get todayHabits {
-   // DateTime today = DateTime.now();
+  // List<dynamic> get todayHabits {
+  //   final now = DateTime.now();
+  //
+  //   return _data.where((task) {
+  //     String? date = task['date'];
+  //
+  //     if (date == null || date.isEmpty) {
+  //       return false;
+  //     }
+  //
+  //     try {
+  //       List<String> parts = date.split('/');
+  //
+  //       if (parts.length != 3) {
+  //         return false;
+  //       }
+  //
+  //       int day = int.parse(parts[0]);
+  //       int month = int.parse(parts[1]);
+  //       int year = int.parse(parts[2]);
+  //
+  //       return day == now.day &&
+  //           month == now.month &&
+  //           year == now.year;
+  //     } catch (e) {
+  //       return false;
+  //     }
+  //   }).toList();
+  // }
 
-    String selected = '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}';
-
-    return habits.where((habit) {
-      return habit.date == selected;
-    }).toList();
-  }
-
-  void toggleTask(Habit habit) {
-    habit.isCompleted=!habit.isCompleted;
-    notifyListeners();
-  }
+  // void toggleTask(Map<String>,dynamic) {
+  //   task['isCompleted']=!(task['isCompleted']?? false);
+  //   notifyListeners();
+  // }
   Future<void> pickTime(BuildContext context) async {
     TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -60,47 +94,44 @@ class HomeProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
   //int currentIndex = 0;
-  int selectedIndex = DateTime.now().weekday - 1;
- DateTime selectedDate=DateTime.now();
-  final List<Habit> habits = [
-    Habit(
-      title: 'Sleep',
-      description: 'Sleep for 8 hours',
-      date: '14/06/2026',
-      time: '9:00'
-    ),
-    Habit(
-      title: 'Drink Water',
-      description: 'Drink 2 liters of water',
-      date: '14/06/2026',
-      time:'7:30'
-    ),
-    Habit(
-      title: 'Exercise',
-      description: 'Workout for 45 minutes',
-      date: '14/06/2026',
-      time:'8:00'
-    ),
-    Habit(
-      title: 'Reading',
-      description: 'Read for 30 minutes',
-      date: '14/06/2026',
-      time:'9:00'
-    ),
+  int selectedIndex = DateTime
+      .now()
+      .weekday - 1;
+  DateTime selectedDate = DateTime.now();
+
+  List<Map<String, dynamic>> habits = [
+    {
+      "title": "Sleep",
+      "description": "Sleep for 8 hours",
+      "date": "14/06/2026",
+      "time": "9:00",
+    },
+    {
+      "title": "Drink Water",
+      "description": "Drink 2 liters of water",
+      "date": "14/06/2026",
+      "time": "7:30",
+    },
   ];
-  List<Habit> foundTasks = [];
+  List<dynamic> _foundTasks = [];
+
+  List<dynamic> get foundTasks => _foundTasks;
 
   HomeProvider() {
-    foundTasks =List.from(habits);
+    _foundTasks = List.from(data);
   }
+
+
   void runFilter(String enteredKeyword) {
-    if (enteredKeyword.isEmpty) {
-      foundTasks = List.from(habits);
+    if (enteredKeyword
+        .trim()
+        .isEmpty) {
+      _foundTasks = List.from(data);
     } else {
-      foundTasks = habits.where((habit) {
-        return habit.title
-            .toLowerCase()
+      _foundTasks = data.where((task) {
+        return task['title'].toString().toLowerCase()
             .contains(enteredKeyword.toLowerCase());
       }).toList();
     }
@@ -108,69 +139,125 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void delete(int index) {
-    habits.removeAt(index);
+  //delete
+  void delete(Map<String, dynamic> task) {
+    _data.remove(task);
     runFilter('');
+    notifyListeners();
   }
 
-  void addHabit(
+  //add habit
+  void addHabit(String title,
+      String description,
+      String date,
+      String time,) {
+    _data.add(
+        {
+          "title": title,
+          "description": description,
+          "date": date,
+          "time": time,
+        });
+    runFilter('');
+    notifyListeners();
+  }
+
+  void editHabit(int index,
       String title,
       String description,
       String date,
-      String time,
-      ) {
-    habits.add(
-      Habit(
-        title: title,
-        description: description,
-        date: date,
-        time: time,
-      ),
-    );
+      String time,) {
+    _data[index] = {
+      "title": title,
+      "description": description,
+      "date": date,
+      "time": time,
+    };
+
     runFilter('');
+    notifyListeners();
   }
 
-  // void changeIndex(int index) {
-  //   currentIndex = index;
-  //   notifyListeners();
-  // }
+
+  void clearControllers() {
+    controller.clear();
+    descriptionController.clear();
+    datecontroller.clear();
+    timecontroller.clear();
+  }
 
   void changeDate(int index) {
     selectedIndex = index;
     notifyListeners();
   }
 
-    void  updateSelectDate(DateTime date)  {
-        selectedDate=date;
-      datecontroller.text = '${date.day}/${date.month}/${date.year}';
-      notifyListeners();
-    }
+  void updateSelectDate(DateTime date) {
+    selectedDate = date;
+    datecontroller.text = '${date.day}/${date.month}/${date.year}';
+    notifyListeners();
+  }
+
   bool _isDarkMode = false;
+
   bool get isDarkMode => _isDarkMode;
+
   void toggleTheme() {
     _isDarkMode = !_isDarkMode;
     notifyListeners();
   }
 
+
+  Future<void> getData() async {
+    http.Response response = await http.get(Uri.parse(
+        'https://6a34f1e68248ee962fa5d77c.mockapi.io/api/jyoti/todo'));
+    _data = jsonDecode(response.body);
+    _foundTasks = List<dynamic>.from(_data);
+    notifyListeners();
   }
 
+  Future<void> postData() async {
+    http.Response response = await http.post(Uri.parse('https://6a34f1e68248ee962fa5d77c.mockapi.io/api/jyoti/todo'),
+      headers: {'content-type': 'application/json'},
+      body: jsonEncode(
+          {
+            'title': controller.value.text,
+            'description': descriptionController.value.text,
+            'date': datecontroller.value.text,
+            'time': timecontroller.value.text,
+          }
+      ),
+    );
+    print(response.body);
+    notifyListeners();
+  }
 
-
-class Habit {
-  final String title;
-  final String description;
-  final String date;
-  final String time;
-  bool isCompleted;
-
-
-  Habit({
-    required this.title,
-    required this.description,
-    required this.date,
-    required this.time,
-    this.isCompleted = false,
-
-  });
+  Future<dynamic> deleteData( String id) async {
+    http.Response response = await http.delete(Uri.parse('https://6a34f1e68248ee962fa5d77c.mockapi.io/api/jyoti/todo/$id'));
+  }
+  notifyListeners();
 }
+
+
+
+
+
+
+
+// class Habit {
+//   final String title;
+//   final String description;
+//   final String date;
+//   final String time;
+//   bool isCompleted;
+//
+//
+//   Habit({
+//     required this.title,
+//     required this.description,
+//     required this.date,
+//     required this.time,
+//     this.isCompleted = false,
+//
+//   });
+//}
 
