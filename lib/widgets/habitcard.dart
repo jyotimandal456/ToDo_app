@@ -32,7 +32,7 @@ class Habitcard extends StatelessWidget {
            SizedBox(height: 8),
 
           Text(
-            habit['discription'],
+            habit['description'],
             style:  TextStyle(
               fontSize: 14,
             ),

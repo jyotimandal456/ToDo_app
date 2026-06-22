@@ -111,44 +111,32 @@ class TaskScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        onPressed: () {
-                          // if (provider.controller.text.trim().isEmpty) {
-                          //
-                          //
-                          //  // return;
-                          // // if (editIndex == null) {
-                          //   provider.addHabit(
-                          //     provider.controller.text.trim(),
-                          //     provider.descriptionController.text.trim(),
-                          //     provider.datecontroller.text.trim(),
-                          //     provider.timecontroller.text.trim(),
-                          //   );
-                          //
-                          // }
-                          // else {
-                          //   provider.editHabit(
-                          //     editIndex!,
-                          //     provider.controller.text.trim(),
-                          //     provider.descriptionController.text.trim(),
-                          //     provider.datecontroller.text.trim(),
-                          //     provider.timecontroller.text.trim(),
-                          //   );
-                          // }
-                          // provider.clearControllers();
-                          // provider.toast();
-                          provider.postData();
-                          Navigator.pop(context);
+                        onPressed: () async {
+                        if (provider.controller.text.trim().isEmpty) {
+                        return;
+                        }
+                        if (editIndex == null) {
+                         await provider.postData(context);
+                        } else {
+                       provider.editHabit(
+                      editIndex!,
+                       provider.controller.text.trim(),
+                       provider.descriptionController.text.trim(),
+                       provider.datecontroller.text.trim(),
+                       provider.timecontroller.text.trim(),
+                       );
+                       }provider.clearControllers();
+                       Navigator.pop(context);
                         },
-
-                        child: Text(
-                          editIndex == null ? "Create Task" : "Update Task",
-                          style: TextStyle(
-                            color: CustomColors.surface(context),
-                            fontSize: 19,
-                            fontWeight: FontWeight.bold,
+                          child:Text(
+                            editIndex == null ? "Create Task" : "Update Task",
+                            style: TextStyle(
+                              color: CustomColors.surface(context),
+                              fontSize: 19,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
                           ),
-                        ),
-                      ),
                     ),
                   ],
                 ),
