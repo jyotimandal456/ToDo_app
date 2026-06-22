@@ -148,16 +148,19 @@ class _DashbordscreenState extends State<Dashbordscreen> {
                                 },
                                 icon: Icons.edit,
                                 label: 'Edit',
+                                backgroundColor:CustomColors.surface(context),
+                                foregroundColor: Colors.green,
                               ),
                               SlidableAction(
                                 onPressed: (context) async {
                                   final task = provider.foundTasks[index];
                                   await provider.deleteData(task['id']);
-                                  provider.delete(task);
+                                 // provider.delete(task);
                                 },
-                                backgroundColor: Colors.red,
+                                backgroundColor:CustomColors.surface(context),
                                 icon: Icons.delete,
                                 label: 'Delete',
+                                foregroundColor: Colors.red,
                               ),
                             ],
                           ),

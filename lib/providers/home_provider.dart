@@ -1,10 +1,11 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
+import '../Colors/custom_colors.dart';
 
 class HomeProvider extends ChangeNotifier {
   List<dynamic> _data = [];
@@ -28,9 +29,9 @@ class HomeProvider extends ChangeNotifier {
 
   TextEditingController get timecontroller => _timecontroller;
 
-  void toast() {
-    Fluttertoast.showToast(msg: 'Task created Successfuly');
-  }
+  // void toast() {
+  //   Fluttertoast.showToast(msg: 'Task created Successfuly');
+  // }
 
   Uint8List? profileImage;
 
@@ -128,7 +129,7 @@ class HomeProvider extends ChangeNotifier {
     if (enteredKeyword
         .trim()
         .isEmpty) {
-      _foundTasks = List.from(data);
+      _foundTasks = List.from(_data);
     } else {
       _foundTasks = data.where((task) {
         return task['title'].toString().toLowerCase()
@@ -140,14 +141,15 @@ class HomeProvider extends ChangeNotifier {
   }
 
   //delete
-  void delete(Map<String, dynamic> task) {
-    _data.remove(task);
-    runFilter('');
-    notifyListeners();
-  }
+  // void delete(Map<String, dynamic> task) {
+  //   _data.remove(task);
+  //   runFilter('');
+  //   notifyListeners();
+  // }
 
   //add habit
-  void addHabit(String title,
+  void addHabit(
+      String title,
       String description,
       String date,
       String time,) {
@@ -208,14 +210,15 @@ class HomeProvider extends ChangeNotifier {
 
 
   Future<void> getData() async {
-    http.Response response = await http.get(Uri.parse(
-        'https://6a34f1e68248ee962fa5d77c.mockapi.io/api/jyoti/todo'));
+    http.Response response = await http.get(Uri.parse('https://6a34f1e68248ee962fa5d77c.mockapi.io/api/jyoti/todo'));
     _data = jsonDecode(response.body);
     _foundTasks = List<dynamic>.from(_data);
     notifyListeners();
+    print(_foundTasks);
+
   }
 
-  Future<void> postData() async {
+  Future<void> postData(BuildContext context) async {
     http.Response response = await http.post(Uri.parse('https://6a34f1e68248ee962fa5d77c.mockapi.io/api/jyoti/todo'),
       headers: {'content-type': 'application/json'},
       body: jsonEncode(
@@ -227,14 +230,44 @@ class HomeProvider extends ChangeNotifier {
           }
       ),
     );
-    print(response.body);
+    if(response.statusCode==200){
+     // _data.add(jsonDecode(response.body));
+     // _foundTasks=List.from(_data);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          padding: EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 10,
+          ),
+          backgroundColor: CustomColors.surface(context),
+          content: Row(
+            children: [
+              Icon(Icons.thumb_up, color: Colors.blue),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text('Task Created Successfully',
+                  style: TextStyle(
+                    color:CustomColors.text(context),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      notifyListeners();
+    }
+
+  }
+
+  Future<void> deleteData( String id) async {
+    http.Response response = await http.delete(Uri.parse('https://6a34f1e68248ee962fa5d77c.mockapi.io/api/jyoti/todo/$id'));
+    _data.removeWhere((task) => task['id'] == id);
+    _foundTasks.removeWhere((task) => task['id'] == id);
+
     notifyListeners();
   }
 
-  Future<dynamic> deleteData( String id) async {
-    http.Response response = await http.delete(Uri.parse('https://6a34f1e68248ee962fa5d77c.mockapi.io/api/jyoti/todo/$id'));
-  }
-  notifyListeners();
 }
 
 
