@@ -135,14 +135,15 @@ class _DashbordscreenState extends State<Dashbordscreen> {
                             motion:  StretchMotion(),
                             children: [
                               SlidableAction(
-                                onPressed: (context) {
+                                onPressed: (context) async{
+                                     final task = provider.foundTasks[index];
+                                    // await provider.updateData(task['id']);
                                   provider.controller.text = task['title']?.toString() ?? '';
                                   provider.descriptionController.text = task['description']?.toString() ?? '';
                                   provider.datecontroller.text = task['date']?.toString() ?? '';
                                   provider.timecontroller.text = task['time']?.toString() ?? '';
-                                  Navigator.push(context,
-                                    MaterialPageRoute(
-                                      builder: (context) => TaskScreen(editIndex: index,),
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => TaskScreen(editIndex: index,taskId:task['id']),
+
                                     ),
                                   );
                                 },
@@ -154,10 +155,18 @@ class _DashbordscreenState extends State<Dashbordscreen> {
                               SlidableAction(
                                 onPressed: (context) async {
                                   final task = provider.foundTasks[index];
-                                  await provider.deleteData(task['id']);
-                                 // provider.delete(task);
+
+                                  bool success = await provider.deleteData(task['id']);
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(success ? "Task deleted successfully" : "Delete failed",
+                                      ),
+                                      backgroundColor: success ? Colors.green : Colors.red,
+                                    ),
+                                  );
                                 },
-                                backgroundColor:CustomColors.surface(context),
+                                backgroundColor: CustomColors.surface(context),
                                 icon: Icons.delete,
                                 label: 'Delete',
                                 foregroundColor: Colors.red,

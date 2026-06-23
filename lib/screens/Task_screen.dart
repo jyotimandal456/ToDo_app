@@ -5,9 +5,11 @@ import '../providers/home_provider.dart';
 
 class TaskScreen extends StatelessWidget {
   final int? editIndex;
+  final String? taskId;
 
   TaskScreen({super.key,
-    this.editIndex});
+    this.editIndex,
+   this.taskId,});
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +43,7 @@ class TaskScreen extends StatelessWidget {
                         ),
 
                         Text(
-                          editIndex == null
-                              ? "Create Task"
-                              : "Edit Task",
+                          editIndex == null ? "Create Task" : "Edit Task",
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -111,23 +111,45 @@ class TaskScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        onPressed: () async {
-                        if (provider.controller.text.trim().isEmpty) {
-                        return;
-                        }
-                        if (editIndex == null) {
-                         await provider.postData(context);
-                        } else {
-                       provider.editHabit(
-                      editIndex!,
-                       provider.controller.text.trim(),
-                       provider.descriptionController.text.trim(),
-                       provider.datecontroller.text.trim(),
-                       provider.timecontroller.text.trim(),
-                       );
-                       }provider.clearControllers();
-                       Navigator.pop(context);
-                        },
+                          onPressed: () async {
+                            if (provider.controller.text.trim().isEmpty) {
+                              return;
+                            }
+
+                            bool success;
+
+                            if (editIndex == null) {
+                              await provider.postData(context);
+                              success = true;
+                            } else {
+                              success = await provider.updateData(context,
+                                taskId!,
+                                provider.controller.text.trim(),
+                                provider.descriptionController.text.trim(),
+                                provider.datecontroller.text.trim(),
+                                provider.timecontroller.text.trim(),
+                              );
+                            }
+                            if (success) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    editIndex == null ? "Task created successfully" : "Task updated successfully",
+                                  ),
+                                  backgroundColor: Colors.green,),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("Something went wrong"),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                            await provider.getData();
+                            provider.clearControllers();
+                            Navigator.pop(context);
+                          },
                           child:Text(
                             editIndex == null ? "Create Task" : "Update Task",
                             style: TextStyle(
