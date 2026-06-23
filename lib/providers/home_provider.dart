@@ -231,6 +231,7 @@ class HomeProvider extends ChangeNotifier {
       ),
     );
     if(response.statusCode==200){
+      print('response.statuscode');
      // _data.add(jsonDecode(response.body));
      // _foundTasks=List.from(_data);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -260,12 +261,42 @@ class HomeProvider extends ChangeNotifier {
 
   }
 
-  Future<void> deleteData( String id) async {
-    http.Response response = await http.delete(Uri.parse('https://6a34f1e68248ee962fa5d77c.mockapi.io/api/jyoti/todo/$id'));
-    _data.removeWhere((task) => task['id'] == id);
-    _foundTasks.removeWhere((task) => task['id'] == id);
+  Future<bool> deleteData(String id) async {
+    final response = await http.delete(
+      Uri.parse('https://6a34f1e68248ee962fa5d77c.mockapi.io/api/jyoti/todo/$id',),);
 
-    notifyListeners();
+    if (response.statusCode == 200) {
+      _data.removeWhere((task) => task['id'] == id);
+      _foundTasks.removeWhere((task) => task['id'] == id);
+      notifyListeners();
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> updateData(BuildContext context,
+      String id,
+      String title,
+      String description,
+      String date,
+      String time,
+      ) async {
+    http.Response response = await http.put(
+      Uri.parse('https://6a34f1e68248ee962fa5d77c.mockapi.io/api/jyoti/todo/$id',),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'title': title,
+        'description': description,
+        'date': date,
+        'time': time,
+      }),
+    );
+    if (response.statusCode == 200) {await getData();
+      notifyListeners();
+      return true;
+    }else{
+      return false;
+    }
   }
 
 }
