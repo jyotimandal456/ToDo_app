@@ -45,12 +45,6 @@ class CustomColors {
           ?  Color(0xFF424242)
           :  Color(0xFF7E57C2);
 
-  // // Secondary Accent
-  // static Color secondary(BuildContext context) =>
-  //     isDark(context)
-  //         ?  Color(0xFF263238)
-  //         :  Color(0xFF26A69A);
-
   // Text
   static Color text(BuildContext context) =>
       isDark(context)
@@ -75,4 +69,9 @@ class CustomColors {
           ? Colors.white
           : Colors.purple.shade200;
 
-    }
+  static Color category(BuildContext context) =>
+      isDark(context)
+          ? Color(0xFF424242)
+          : Colors.blue.shade300;
+
+}

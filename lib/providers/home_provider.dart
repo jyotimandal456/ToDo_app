@@ -14,20 +14,28 @@ class HomeProvider extends ChangeNotifier {
 
 
   TextEditingController _controller = TextEditingController();
-
   TextEditingController get controller => _controller;
 
   TextEditingController _datecontroller = TextEditingController();
-
   TextEditingController get datecontroller => _datecontroller;
 
   TextEditingController _descriptionController = TextEditingController();
-
   TextEditingController get descriptionController => _descriptionController;
 
   TextEditingController _timecontroller = TextEditingController();
-
   TextEditingController get timecontroller => _timecontroller;
+
+  bool _isDarkMode = false;
+  bool get isDarkMode => _isDarkMode;
+
+  String _selectedCategory = "work";
+  String get selectedCategory => _selectedCategory;
+
+  TextEditingController _startcontroller= TextEditingController();
+  TextEditingController  get startcontroller => _startcontroller;
+
+  TextEditingController _endcontroller=TextEditingController();
+  TextEditingController get endcontroller => _endcontroller;
 
   // void toast() {
   //   Fluttertoast.showToast(msg: 'Task created Successfuly');
@@ -97,9 +105,7 @@ class HomeProvider extends ChangeNotifier {
   }
 
   //int currentIndex = 0;
-  int selectedIndex = DateTime
-      .now()
-      .weekday - 1;
+  int selectedIndex = DateTime.now().weekday - 1;
   DateTime selectedDate = DateTime.now();
 
   List<Map<String, dynamic>> habits = [
@@ -159,26 +165,30 @@ class HomeProvider extends ChangeNotifier {
           "description": description,
           "date": date,
           "time": time,
+
         });
     runFilter('');
     notifyListeners();
   }
 
-  void editHabit(int index,
-      String title,
-      String description,
-      String date,
-      String time,) {
-    _data[index] = {
-      "title": title,
-      "description": description,
-      "date": date,
-      "time": time,
-    };
-
-    runFilter('');
-    notifyListeners();
-  }
+  // void editHabit(int index,
+  //     String title,
+  //     String description,
+  //     String date,
+  //     String time,
+  //     String category,
+  //     ) {
+  //   _data[index] = {
+  //     "title": title,
+  //     "description": description,
+  //     "date": date,
+  //     "time": time,
+  //     "category":category,
+  //   };
+  //
+  //   runFilter('');
+  //   notifyListeners();
+  // }
 
 
   void clearControllers() {
@@ -186,6 +196,9 @@ class HomeProvider extends ChangeNotifier {
     descriptionController.clear();
     datecontroller.clear();
     timecontroller.clear();
+    startcontroller.clear();
+    endcontroller.clear();
+    startcontroller.clear();
   }
 
   void changeDate(int index) {
@@ -198,10 +211,6 @@ class HomeProvider extends ChangeNotifier {
     datecontroller.text = '${date.day}/${date.month}/${date.year}';
     notifyListeners();
   }
-
-  bool _isDarkMode = false;
-
-  bool get isDarkMode => _isDarkMode;
 
   void toggleTheme() {
     _isDarkMode = !_isDarkMode;
@@ -221,41 +230,42 @@ class HomeProvider extends ChangeNotifier {
   Future<void> postData(BuildContext context) async {
     http.Response response = await http.post(Uri.parse('https://6a34f1e68248ee962fa5d77c.mockapi.io/api/jyoti/todo'),
       headers: {'content-type': 'application/json'},
-      body: jsonEncode(
-          {
-            'title': controller.value.text,
-            'description': descriptionController.value.text,
-            'date': datecontroller.value.text,
-            'time': timecontroller.value.text,
-          }
-      ),
-    );
+      body: jsonEncode({
+        "title": controller.text.trim(),
+        "description": descriptionController.text.trim(),
+        "date": datecontroller.text.trim(),
+        "time": timecontroller.text.trim(),
+        "startTime": startcontroller.text.trim(),
+        "endTime": endcontroller.text.trim(),
+        "category": selectedCategory,
+      }),
+      );
     if(response.statusCode==200){
       print('response.statuscode');
      // _data.add(jsonDecode(response.body));
      // _foundTasks=List.from(_data);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          padding: EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 10,
-          ),
-          backgroundColor: CustomColors.surface(context),
-          content: Row(
-            children: [
-              Icon(Icons.thumb_up, color: Colors.blue),
-              SizedBox(width: 10),
-              Expanded(
-                child: Text('Task Created Successfully',
-                  style: TextStyle(
-                    color:CustomColors.text(context),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+     //  ScaffoldMessenger.of(context).showSnackBar(
+     //    SnackBar(
+     //      padding: EdgeInsets.symmetric(
+     //        horizontal: 10,
+     //        vertical: 10,
+     //      ),
+     //      backgroundColor: CustomColors.surface(context),
+     //      content: Row(
+     //        children: [
+     //          Icon(Icons.thumb_up, color: Colors.blue),
+     //          SizedBox(width: 10),
+     //          Expanded(
+     //            child: Text('Task Created Successfully',
+     //              style: TextStyle(
+     //                color:CustomColors.text(context),
+     //              ),
+     //            ),
+     //          ),
+     //        ],
+     //      ),
+     //    ),
+     //  );
       notifyListeners();
     }
 
@@ -280,6 +290,10 @@ class HomeProvider extends ChangeNotifier {
       String description,
       String date,
       String time,
+      String category,
+      String start,
+      String end,
+
       ) async {
     http.Response response = await http.put(
       Uri.parse('https://6a34f1e68248ee962fa5d77c.mockapi.io/api/jyoti/todo/$id',),
@@ -289,6 +303,9 @@ class HomeProvider extends ChangeNotifier {
         'description': description,
         'date': date,
         'time': time,
+        'start':start,
+        'end':end,
+        'category':category,
       }),
     );
     if (response.statusCode == 200) {await getData();
@@ -297,6 +314,11 @@ class HomeProvider extends ChangeNotifier {
     }else{
       return false;
     }
+  }
+
+  void setCategory(String category) {
+    _selectedCategory = category;
+    notifyListeners();
   }
 
 }
