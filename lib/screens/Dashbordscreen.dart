@@ -3,6 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/Colors/custom_colors.dart';
 import 'package:untitled/providers/home_provider.dart';
+import 'package:untitled/screens/Introscreen.dart';
 import 'package:untitled/screens/profile_screen.dart';
 import 'package:untitled/widgets/calendar.dart';
 import 'package:untitled/widgets/habitcard.dart';
@@ -28,6 +29,9 @@ class _DashbordscreenState extends State<Dashbordscreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(onPressed: (){
+          Navigator.push(context, MaterialPageRoute(builder: (_)=> Homescreen()));
+        }, icon:Icon(Icons.arrow_back)),
         titleSpacing: 16,
         centerTitle: false,
         backgroundColor:CustomColors.appBar(context),
@@ -155,16 +159,29 @@ class _DashbordscreenState extends State<Dashbordscreen> {
                               SlidableAction(
                                 onPressed: (context) async {
                                   final task = provider.foundTasks[index];
-
-                                  bool success = await provider.deleteData(task['id']);
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(success ? "Task deleted successfully" : "Delete failed",
+                                  showDialog(context: context, builder: (context){
+                                    return AlertDialog(
+                                      content: Text('Are you sure?',
+                                      style: TextStyle(fontSize: 20,
+                                      fontWeight: FontWeight.w600),
                                       ),
-                                      backgroundColor: success ? Colors.green : Colors.red,
-                                    ),
-                                  );
+                                      actions: [
+                                        TextButton(onPressed: (){
+                                        Navigator.pop(context);
+                                        }, child:Text('Cancel'),
+                                        ),
+                                        SizedBox(width: 10,),
+                                        TextButton(onPressed: () async {
+                                          final task = provider.foundTasks[index];
+                                           await provider.deleteData(task['id']);
+                                          Navigator.pop(context);
+
+                                        },
+                                            child:Text('Sure'))
+                                      ],
+                                    );
+                                  });
+
                                 },
                                 backgroundColor: CustomColors.surface(context),
                                 icon: Icons.delete,
@@ -174,12 +191,41 @@ class _DashbordscreenState extends State<Dashbordscreen> {
                             ],
                           ),
                           child: Card(
+                            shadowColor: CustomColors.shadow(context),
                             color: CustomColors.surface(context),
                             child:ListTile(
                               leading: Text(provider.foundTasks[index]['time']?.toString() ?? '',),
                               title: Text(provider.foundTasks[index]['title']?.toString() ?? '',),
                               subtitle: Text(provider.foundTasks[index]['description']?.toString() ?? '',),
-                              trailing: Text(provider.foundTasks[index]['date']?.toString() ?? '',),
+                              trailing: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    provider.foundTasks[index]['date']?.toString() ?? '',
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                  SizedBox(height: 6),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: CustomColors.shadow(context),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      provider.foundTasks[index]['category']?.toString() ?? 'General',
+                                      style: TextStyle(
+                                        color:Colors.blue.shade900,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             )
                           ),
                         );

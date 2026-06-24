@@ -53,6 +53,12 @@ class TaskScreen extends StatelessWidget {
                         IconButton(
                           icon: Icon(Icons.access_time),
                           onPressed: () {
+                            if(provider.timecontroller.text.isEmpty){
+                              return;
+                            }else{
+                              provider.startcontroller.text.trim();
+                              provider.endcontroller.text.trim();
+                            }
                             provider.pickTime(context);
                           },
                         ),
@@ -86,6 +92,32 @@ class TaskScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+                           SizedBox(height: 15),
+                           TextFormField(
+                     controller: provider.startcontroller,
+                      decoration: InputDecoration(
+                        hintText: 'Start time',
+                        filled: true,
+                        fillColor: CustomColors.surface(context),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                           SizedBox(height: 15),
+                    TextFormField(
+                     controller: provider.endcontroller,
+                      decoration: InputDecoration(
+                        hintText: 'End time',
+                        filled: true,
+                        fillColor: CustomColors.surface(context),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
                     SizedBox(height: 15),
                     TextFormField(
                       controller: provider.descriptionController,
@@ -100,6 +132,42 @@ class TaskScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+                    SizedBox(height: 20),
+                    Text(
+                      "Task Category",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        ChoiceChip(
+                          label: Text("Work"),
+                          selected: provider.selectedCategory == "Work",
+                          onSelected: (_) => provider.setCategory("Work"),
+                        ),
+                        ChoiceChip(
+                          label: Text("Personal"),
+                          selected: provider.selectedCategory == "Personal",
+                          onSelected: (_) => provider.setCategory("Personal"),
+                        ),
+                        ChoiceChip(
+                          label: Text("Study"),
+                          selected: provider.selectedCategory == "Study",
+                          onSelected: (_) => provider.setCategory("Study"),
+                        ),
+                        ChoiceChip(
+                          label: Text("Shopping"),
+                          selected: provider.selectedCategory == "Shopping",
+                          onSelected: (_) => provider.setCategory("Shopping"),
+                        ),
+                      ],
+                    ),
+
                     SizedBox(height: 30),
                     SizedBox(
                       width: double.infinity,
@@ -128,15 +196,39 @@ class TaskScreen extends StatelessWidget {
                                 provider.descriptionController.text.trim(),
                                 provider.datecontroller.text.trim(),
                                 provider.timecontroller.text.trim(),
+                                provider.startcontroller.text.trim(),
+                                provider.endcontroller.text.trim(),
+                                provider.selectedCategory.trim(),
                               );
                             }
                             if (success) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(
-                                    editIndex == null ? "Task created successfully" : "Task updated successfully",
+                                  behavior: SnackBarBehavior.floating,
+                                  margin:  EdgeInsets.all(12),
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
                                   ),
-                                  backgroundColor: Colors.green,),
+                                  content: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle,
+                                        color: Colors.purple.shade200,
+                                      ),
+                                      SizedBox(width: 10),
+                                      Expanded(child:
+                                      Text( editIndex == null ? "Task created successfully" : "Task updated successfully",
+                                          style: TextStyle(
+                                            color:CustomColors.text(context),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  duration: Duration(seconds: 2),
+                                ),
                               );
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
