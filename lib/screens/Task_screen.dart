@@ -53,12 +53,12 @@ class TaskScreen extends StatelessWidget {
                         IconButton(
                           icon: Icon(Icons.access_time),
                           onPressed: () {
-                            if(provider.timecontroller.text.isEmpty){
-                              return;
-                            }else{
-                              provider.startcontroller.text.trim();
-                              provider.endcontroller.text.trim();
-                            }
+                            // if(provider.timecontroller.text.isEmpty){
+                            //   return;
+                            // }else{
+                            //   provider.startcontroller.text.trim();
+                            //   provider.endcontroller.text.trim();
+                            // }
                             provider.pickTime(context);
                           },
                         ),
@@ -92,33 +92,47 @@ class TaskScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                           SizedBox(height: 15),
-                           TextFormField(
-                     controller: provider.startcontroller,
-                      decoration: InputDecoration(
-                        hintText: 'Start time',
-                        filled: true,
-                        fillColor: CustomColors.surface(context),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                           SizedBox(height: 15),
+                           SizedBox(height: 20),
                     TextFormField(
-                     controller: provider.endcontroller,
+                      controller: provider.startTimecontroller,
                       decoration: InputDecoration(
-                        hintText: 'End time',
+                          labelText: ' Start Time',
+                          filled: true,
+                          fillColor: CustomColors.surface(context),
+                          suffixIcon: Icon(
+                            Icons.watch_later_outlined,
+                            color: CustomColors.text(context),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide.none,
+                          )
+                      ),
+                      onTap: () async {
+                        provider.pickStartTime(context);
+                      },
+                    ),
+                    SizedBox(height: 20),
+                    TextFormField(
+                      controller: provider.endTimecontroller,
+                      decoration: InputDecoration(
+                        labelText: 'End Time',
                         filled: true,
                         fillColor: CustomColors.surface(context),
+                        suffixIcon: Icon(
+                          Icons.watch_later_outlined,
+                          color:CustomColors.text(context),
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
                           borderSide: BorderSide.none,
-                        ),
+                        )
                       ),
+                      onTap: () async {
+                        provider.pickEndTime(context);
+                      },
                     ),
-                    SizedBox(height: 15),
+                    SizedBox(height: 20),
                     TextFormField(
                       controller: provider.descriptionController,
                       maxLines: 4,
@@ -195,10 +209,9 @@ class TaskScreen extends StatelessWidget {
                                 provider.controller.text.trim(),
                                 provider.descriptionController.text.trim(),
                                 provider.datecontroller.text.trim(),
-                                provider.timecontroller.text.trim(),
-                                provider.startcontroller.text.trim(),
-                                provider.endcontroller.text.trim(),
                                 provider.selectedCategory.trim(),
+                                provider.startTimecontroller.text.trim(),
+                                provider.endTimecontroller.text.trim(),
                               );
                             }
                             if (success) {

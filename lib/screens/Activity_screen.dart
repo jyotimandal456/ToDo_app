@@ -38,37 +38,49 @@ class ActivityScreen extends StatelessWidget {
                 color: CustomColors.surface(context),
                 margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: ListTile(
-                  leading: Text(task['time']?.toString() ?? ''),
-                  title: Text(task['title']?.toString() ?? ''),
-                  subtitle: Text(task['description']?.toString() ?? ''),
-                  trailing: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  isThreeLine: true,
+                  title: Text(provider.foundTasks[index]['title']?.toString() ?? '',
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        provider.foundTasks[index]['date']?.toString() ?? '',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      SizedBox(height: 6),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: CustomColors.shadow(context),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          provider.foundTasks[index]['category']?.toString() ?? 'General',
-                          style: TextStyle(
-                            color: Colors.blue.shade900,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
+                      Row(
+                        children: [
+                          Icon(Icons.access_time, size: 14),
+                          SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              '${provider.foundTasks[index]['startTime'] ?? ''} - ${provider.foundTasks[index]['endTime'] ?? ''}',
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.blueGrey,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
+                      ),
+                      SizedBox(height: 4),
+                      Text(provider.foundTasks[index]['description']?.toString() ?? '',
                       ),
                     ],
+                  ),
+                  trailing: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: CustomColors.shadow(context),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(provider.foundTasks[index]['category']?.toString() ?? 'General',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               );

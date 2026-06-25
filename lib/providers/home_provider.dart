@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
-import '../Colors/custom_colors.dart';
+import 'package:numberpicker/numberpicker.dart';
+import 'package:intl/intl.dart';
+import 'package:omni_datetime_picker/omni_datetime_picker.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class HomeProvider extends ChangeNotifier {
   List<dynamic> _data = [];
@@ -31,11 +33,17 @@ class HomeProvider extends ChangeNotifier {
   String _selectedCategory = "work";
   String get selectedCategory => _selectedCategory;
 
-  TextEditingController _startcontroller= TextEditingController();
-  TextEditingController  get startcontroller => _startcontroller;
+  String? _startTime;
+  String? _endTime;
+  String? get startTime => _startTime;
+  String? get endTime => _endTime;
 
-  TextEditingController _endcontroller=TextEditingController();
-  TextEditingController get endcontroller => _endcontroller;
+  TextEditingController _startTimecontroller= TextEditingController();
+  TextEditingController  get startTimecontroller => _startTimecontroller;
+
+  TextEditingController _endTimecontroller=TextEditingController();
+  TextEditingController get endTimecontroller => _endTimecontroller;
+
 
   // void toast() {
   //   Fluttertoast.showToast(msg: 'Task created Successfuly');
@@ -103,6 +111,31 @@ class HomeProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+  void pickStartTime(BuildContext context) async {
+    DateTime? dateTime = await showOmniDateTimePicker(context: context,
+      type: OmniDateTimePickerType.time,
+      is24HourMode: false,
+    );
+
+    if (dateTime != null) {
+      _startTime = DateFormat('hh:mm a').format(dateTime);
+      _startTimecontroller.text = _startTime!;
+    }
+    notifyListeners();
+  }
+
+  void pickEndTime(BuildContext context) async {
+    DateTime? picked = await showOmniDateTimePicker(
+      context: context,
+      type: OmniDateTimePickerType.time,
+    );
+
+    if (picked != null) {
+      _endTime = DateFormat('hh:mm a').format(picked);
+      _endTimecontroller.text = _endTime!;
+    }
+    notifyListeners();
+  }
 
   //int currentIndex = 0;
   int selectedIndex = DateTime.now().weekday - 1;
@@ -132,14 +165,11 @@ class HomeProvider extends ChangeNotifier {
 
 
   void runFilter(String enteredKeyword) {
-    if (enteredKeyword
-        .trim()
-        .isEmpty) {
+    if (enteredKeyword.trim().isEmpty) {
       _foundTasks = List.from(_data);
     } else {
       _foundTasks = data.where((task) {
-        return task['title'].toString().toLowerCase()
-            .contains(enteredKeyword.toLowerCase());
+        return task['title'].toString().toLowerCase().contains(enteredKeyword.toLowerCase());
       }).toList();
     }
 
@@ -158,13 +188,16 @@ class HomeProvider extends ChangeNotifier {
       String title,
       String description,
       String date,
-      String time,) {
+      String start,
+      String end,
+      ) {
     _data.add(
         {
           "title": title,
           "description": description,
           "date": date,
-          "time": time,
+          "start":start,
+          "end":end,
 
         });
     runFilter('');
@@ -195,10 +228,8 @@ class HomeProvider extends ChangeNotifier {
     controller.clear();
     descriptionController.clear();
     datecontroller.clear();
-    timecontroller.clear();
-    startcontroller.clear();
-    endcontroller.clear();
-    startcontroller.clear();
+    startTimecontroller.clear();
+    endTimecontroller.clear();
   }
 
   void changeDate(int index) {
@@ -234,9 +265,9 @@ class HomeProvider extends ChangeNotifier {
         "title": controller.text.trim(),
         "description": descriptionController.text.trim(),
         "date": datecontroller.text.trim(),
-        "time": timecontroller.text.trim(),
-        "startTime": startcontroller.text.trim(),
-        "endTime": endcontroller.text.trim(),
+        // "time": timecontroller.text.trim(),
+        "startTime": startTimecontroller.text.trim(),
+        "endTime": endTimecontroller.text.trim(),
         "category": selectedCategory,
       }),
       );
@@ -289,10 +320,9 @@ class HomeProvider extends ChangeNotifier {
       String title,
       String description,
       String date,
-      String time,
       String category,
-      String start,
-      String end,
+      String startTime,
+      String endTime,
 
       ) async {
     http.Response response = await http.put(
@@ -302,10 +332,10 @@ class HomeProvider extends ChangeNotifier {
         'title': title,
         'description': description,
         'date': date,
-        'time': time,
-        'start':start,
-        'end':end,
         'category':category,
+        'startTime':startTime,
+        'endTime':endTime,
+
       }),
     );
     if (response.statusCode == 200) {await getData();
