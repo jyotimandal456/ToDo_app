@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as stroage;
 import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -350,8 +351,74 @@ class HomeProvider extends ChangeNotifier {
     _selectedCategory = category;
     notifyListeners();
   }
-
+  // static final SessionController _instance=SessionController();
+  // static SessionController get instance =>_instance;
+  //
+  // String? userId;
+  // String? token;
+  // DateTime? expiryData;
+  //
+  // void setSession(String userId,String token,DateTime expiryData) async {
+  //   this.userId;
+  //   this. token;
+  //   this.expiryData;
+  //
+  //   const storage = FlutterSecureStorage();
+  //   await storage.write(key: 'userId', value: userId);
+  //   await storage.write(key: 'expiryData', value: expiryData.toIso8601String());
+  // }
 }
+
+class SessionController {
+  static final SessionController _instance=SessionController();
+  static SessionController get instance =>_instance;
+
+  String? userId;
+  String? token;
+  //DateTime? expiryDate;
+
+  void setSession(String userId,String token,DateTime expiryData) async {
+    this.userId;
+    this. token;
+    //this.expiryDate;
+
+    const storage = FlutterSecureStorage();
+    await storage.write(key: 'userId', value: userId);
+   // await storage.write(key: 'expiryDate', value: expiryData.toIso8601String());
+  }
+  Future <void> LoadSession() async{
+     const storage =FlutterSecureStorage();
+     final response = await Future.wait([
+       storage.read(key: 'userId'),
+       storage.read(key: 'token'),
+      // storage.read(key: 'expiryDate')
+     ]);
+     userId =response[0];
+     token=response[1];
+     // String? expiryDateString =response[2];
+     // if(expiryDateString!=null){
+     //   expiryDate=DateTime.parse(expiryDateString);
+     // }
+  }
+  void clearSession() async{
+    userId =null;
+    token=null;
+    //expiryDate=null;
+
+    const storage = FlutterSecureStorage();
+    await Future.wait([
+      storage.delete(key: 'userId'),
+      storage.delete(key: 'token',)
+
+    ]);
+  }
+}
+
+
+
+
+
+
 
 
 
