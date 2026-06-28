@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:untitled/Colors/custom_colors.dart';
 import 'package:untitled/screens/Dashbordscreen.dart';
+import 'package:untitled/screens/mainscreen.dart';
 
 import '../providers/home_provider.dart';
 
@@ -87,13 +89,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      String username = usernameController.text.trim();
-                      String password = passwordController.text.trim();
-                      final session =SessionController.instance;
-                      session.setSession(usernameController, passwordController);
-                      Navigator.push(context,MaterialPageRoute(builder: (context)=> Dashbordscreen()));
-                    },
+                      onPressed: () async {
+                        String username = usernameController.text.trim();
+                        String password = passwordController.text.trim();
+
+                        final provider = Provider.of<HomeProvider>(context, listen: false,);
+                        bool success = await SessionController.instance.login(
+                          username,
+                          password,
+                        );
+                        if (success) {Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) =>  Mainscreen(),),);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Invalid username or password"),
+                            ),
+                          );
+                        }
+                      },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:CustomColors.appBar(context),
                       padding:  EdgeInsets.symmetric(vertical: 15),

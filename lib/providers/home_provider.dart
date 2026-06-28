@@ -164,6 +164,9 @@ class HomeProvider extends ChangeNotifier {
     _foundTasks = List.from(data);
   }
 
+  get usernameController => null;
+  get passwordController => null;
+
 
   void runFilter(String enteredKeyword) {
     if (enteredKeyword.trim().isEmpty) {
@@ -231,6 +234,8 @@ class HomeProvider extends ChangeNotifier {
     datecontroller.clear();
     startTimecontroller.clear();
     endTimecontroller.clear();
+    usernameController.clear();
+    passwordController.clear();
   }
 
   void changeDate(int index) {
@@ -370,49 +375,68 @@ class HomeProvider extends ChangeNotifier {
 }
 
 class SessionController {
-  static final SessionController _instance=SessionController();
-  static SessionController get instance =>_instance;
-
+  static final SessionController _instance = SessionController();
+  static SessionController get instance => _instance;
   String? userId;
   String? token;
-  //DateTime? expiryDate;
+  Future<bool> isLoggedIn() async {
+    await loadSession();
+    return userId != null && token != null;
+  }
 
-  void setSession(String userId,String token,DateTime expiryData) async {
-    this.userId;
-    this. token;
-    //this.expiryDate;
+  Future<void> setSession(String userId, String token) async {
+    this.userId = userId;
+    this.token = token;
 
     const storage = FlutterSecureStorage();
+
     await storage.write(key: 'userId', value: userId);
-   // await storage.write(key: 'expiryDate', value: expiryData.toIso8601String());
+    await storage.write(key: 'token', value: token);
   }
-  Future <void> LoadSession() async{
-     const storage =FlutterSecureStorage();
-     final response = await Future.wait([
-       storage.read(key: 'userId'),
-       storage.read(key: 'token'),
-      // storage.read(key: 'expiryDate')
-     ]);
-     userId =response[0];
-     token=response[1];
-     // String? expiryDateString =response[2];
-     // if(expiryDateString!=null){
-     //   expiryDate=DateTime.parse(expiryDateString);
-     // }
+
+  Future<void> loadSession() async {
+    const storage = FlutterSecureStorage();
+
+    userId = await storage.read(key: 'userId');
+    token = await storage.read(key: 'token');
   }
-  void clearSession() async{
-    userId =null;
-    token=null;
-    //expiryDate=null;
+
+  Future<void> clearSession() async {
+    userId = null;
+    token = null;
 
     const storage = FlutterSecureStorage();
-    await Future.wait([
-      storage.delete(key: 'userId'),
-      storage.delete(key: 'token',)
+    await storage.delete(key: 'userId');
+    await storage.delete(key: 'token');
+  }
 
-    ]);
+  Future<bool> login(String username, String password) async {
+    final response = await http.post(
+      Uri.parse('https://dummyjson.com/docs/auth'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        "username": username,
+        "password": password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('statusCode');
+      final data = jsonDecode(response.body);
+      await SessionController.instance.setSession(
+        data['userId'],
+        data['token'],
+      );
+
+      return true;
+    }
+
+    return false;
   }
 }
+
 
 
 

@@ -58,7 +58,7 @@ class _DashbordscreenState extends State<Dashbordscreen> {
               padding:EdgeInsetsGeometry.only(right: 15),
               child:GestureDetector(
                 onTap:(){
-                  provider.selectImage();
+                 // provider.selectImage();
                   Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfileScreen(),));
                 },
 

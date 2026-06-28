@@ -4,6 +4,7 @@ import 'package:untitled/Colors/custom_colors.dart';
 import 'package:untitled/providers/home_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:untitled/screens/Introscreen.dart';
+import 'package:untitled/screens/loginScreen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -134,9 +135,12 @@ class ProfileScreen extends StatelessWidget {
 
               SizedBox(height: 30),
               ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(context,MaterialPageRoute(builder:(_)=>Homescreen ()));
-                },
+                  onPressed: () async {
+
+                    await SessionController.instance.clearSession();
+
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => Homescreen(),), (route) => false,);
+                  },
                 icon: Icon(Icons.logout),
                 label: Text(
                   "Logout",
