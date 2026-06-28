@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as stroage;
 import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -163,6 +164,9 @@ class HomeProvider extends ChangeNotifier {
     _foundTasks = List.from(data);
   }
 
+  get usernameController => null;
+  get passwordController => null;
+
 
   void runFilter(String enteredKeyword) {
     if (enteredKeyword.trim().isEmpty) {
@@ -230,6 +234,8 @@ class HomeProvider extends ChangeNotifier {
     datecontroller.clear();
     startTimecontroller.clear();
     endTimecontroller.clear();
+    usernameController.clear();
+    passwordController.clear();
   }
 
   void changeDate(int index) {
@@ -350,8 +356,93 @@ class HomeProvider extends ChangeNotifier {
     _selectedCategory = category;
     notifyListeners();
   }
-
+  // static final SessionController _instance=SessionController();
+  // static SessionController get instance =>_instance;
+  //
+  // String? userId;
+  // String? token;
+  // DateTime? expiryData;
+  //
+  // void setSession(String userId,String token,DateTime expiryData) async {
+  //   this.userId;
+  //   this. token;
+  //   this.expiryData;
+  //
+  //   const storage = FlutterSecureStorage();
+  //   await storage.write(key: 'userId', value: userId);
+  //   await storage.write(key: 'expiryData', value: expiryData.toIso8601String());
+  // }
 }
+
+class SessionController {
+  static final SessionController _instance = SessionController();
+  static SessionController get instance => _instance;
+  String? userId;
+  String? token;
+  Future<bool> isLoggedIn() async {
+    await loadSession();
+    return userId != null && token != null;
+  }
+
+  Future<void> setSession(String userId, String token) async {
+    this.userId = userId;
+    this.token = token;
+
+    const storage = FlutterSecureStorage();
+
+    await storage.write(key: 'userId', value: userId);
+    await storage.write(key: 'token', value: token);
+  }
+
+  Future<void> loadSession() async {
+    const storage = FlutterSecureStorage();
+
+    userId = await storage.read(key: 'userId');
+    token = await storage.read(key: 'token');
+  }
+
+  Future<void> clearSession() async {
+    userId = null;
+    token = null;
+
+    const storage = FlutterSecureStorage();
+    await storage.delete(key: 'userId');
+    await storage.delete(key: 'token');
+  }
+
+  Future<bool> login(String username, String password) async {
+    final response = await http.post(
+      Uri.parse('https://dummyjson.com/docs/auth'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        "username": username,
+        "password": password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('statusCode');
+      final data = jsonDecode(response.body);
+      await SessionController.instance.setSession(
+        data['userId'],
+        data['token'],
+      );
+
+      return true;
+    }
+
+    return false;
+  }
+}
+
+
+
+
+
+
+
 
 
 

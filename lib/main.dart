@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:untitled/providers/home_provider.dart';
 import 'package:untitled/screens/Dashbordscreen.dart';
 import 'package:untitled/screens/Introscreen.dart';
+import 'package:untitled/screens/loginScreen.dart';
 import 'package:untitled/screens/mainscreen.dart';
 
 void main() {
@@ -30,4 +31,5 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 

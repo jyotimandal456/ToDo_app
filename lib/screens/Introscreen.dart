@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:untitled/Colors/custom_colors.dart';
+import 'package:untitled/providers/home_provider.dart';
 import 'package:untitled/screens/Dashbordscreen.dart';
+import 'package:untitled/screens/loginScreen.dart';
 import 'package:untitled/screens/mainscreen.dart';
 
 class Homescreen extends StatefulWidget {
@@ -11,6 +16,24 @@ class Homescreen extends StatefulWidget {
 }
 
 class _HomescreenState extends State<Homescreen> {
+  @override
+  @override
+  void initState() {
+    super.initState();
+    checkSession();
+  }
+  Future<void> checkSession() async {
+    final session = SessionController.instance;
+    await session.loadSession();
+    Timer( Duration(seconds: 2), () {if (!mounted)
+      return;
+      if (session.userId == null) {Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => LoginScreen(),), (route) => false);
+      } else {
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) =>  Mainscreen(),), (route) => false,
+        );
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
