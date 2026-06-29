@@ -9,15 +9,29 @@ import 'package:numberpicker/numberpicker.dart';
 import 'package:intl/intl.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:untitled/screens/mainscreen.dart';
 
 class HomeProvider extends ChangeNotifier {
   List<dynamic> _data = [];
 
   List<dynamic> get data => _data;
+  String? _userId;
+  String? get userId=>_userId;
+  String? _token;
+  String? get token=>_token;
+  String? _accessToken;
+  String? get acessToken =>_accessToken;
+  Map<String,dynamic> _dataa={};
+  Map<String,dynamic> get dataa=>_dataa;
+
 
 
   TextEditingController _controller = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   TextEditingController get controller => _controller;
+  TextEditingController get usernameController => _usernameController;
+  TextEditingController get passwordController => _passwordController;
 
   TextEditingController _datecontroller = TextEditingController();
   TextEditingController get datecontroller => _datecontroller;
@@ -45,6 +59,98 @@ class HomeProvider extends ChangeNotifier {
   TextEditingController _endTimecontroller=TextEditingController();
   TextEditingController get endTimecontroller => _endTimecontroller;
 
+  static final HomeProvider _instance = HomeProvider();
+  static HomeProvider get instance => _instance;
+
+  // void login(String username,String password,context) async{
+  //   http.Response response =await http.post(Uri.parse("https://dummyjson.com/auth/login"),
+  //       headers: {'content-type':'application/json'},
+  //       body: jsonEncode({
+  //         'username':username,
+  //         'password':password,
+  //
+  //       })
+  //   );
+  //   if(response.statusCode==200||response.statusCode==201){
+  //     final data=jsonDecode(response.body);
+  //     _accessToken=data['accessToken'];
+  //     setSession(_accessToken!);
+  //     Navigator.push(context, MaterialPageRoute(builder: (context)=>Mainscreen()));
+  //
+  //   }else{
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //             backgroundColor: Colors.white,
+  //             behavior: SnackBarBehavior.floating,
+  //             margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height - 110,left: 16,right: 16),
+  //             shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
+  //             content: Row(
+  //               children: [
+  //                 Icon(Icons.check_circle, color: Color(0xFF84C5A5)),
+  //                 SizedBox(width: 10),
+  //                 Text('Don\'t use my app',style: TextStyle(color:Colors.black)),
+  //               ],
+  //             )
+  //         ),
+  //     );
+  //   }
+  //   notifyListeners();
+  //   print(username);
+  //   print(password);
+  //   print(response.statusCode);
+  //   print(_accessToken);
+  // }
+  void login(String username, String password, context) async {
+    final response = await http.post(Uri.parse('https://dummyjson.com/auth/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "username": username,
+        "password": password,
+      }),
+    );
+    if (response.statusCode == 200) {
+
+      Navigator.push(context, MaterialPageRoute(builder: (context)=> Mainscreen())
+      );
+    }
+    print(response.statusCode);
+    print(username);
+    print(password);
+    print(response.body);
+    notifyListeners();
+  }
+
+
+  void setSession(String accessToken,)async{
+    const storage =FlutterSecureStorage();
+    await storage.write(key: "accessToken",value: accessToken);
+    notifyListeners();
+  }
+
+  Future<void> loadSession() async {
+    const storage = FlutterSecureStorage();
+    final response= await Future.wait([storage.read(key: 'accessToken'),
+    ]);
+    _accessToken=response[0];
+    notifyListeners();
+  }
+
+  Future<void> clearSession() async {
+    _accessToken = null;
+    const stroage=FlutterSecureStorage();
+    await Future.wait([stroage.delete(key: 'accessToken'),
+    ]);
+    notifyListeners();
+    // const storage = FlutterSecureStorage();
+    // await storage.delete(key: 'userId');
+    // await storage.delete(key: 'token');
+  }
+
+
+// Future<bool> isLoggedIn() async {
+//    await loadSession();
+//   return userId != null && token != null;
+//  }
 
   // void toast() {
   //   Fluttertoast.showToast(msg: 'Task created Successfuly');
@@ -164,10 +270,6 @@ class HomeProvider extends ChangeNotifier {
     _foundTasks = List.from(data);
   }
 
-  get usernameController => null;
-  get passwordController => null;
-
-
   void runFilter(String enteredKeyword) {
     if (enteredKeyword.trim().isEmpty) {
       _foundTasks = List.from(_data);
@@ -179,6 +281,7 @@ class HomeProvider extends ChangeNotifier {
 
     notifyListeners();
   }
+
 
   //delete
   // void delete(Map<String, dynamic> task) {
@@ -374,68 +477,15 @@ class HomeProvider extends ChangeNotifier {
   // }
 }
 
-class SessionController {
-  static final SessionController _instance = SessionController();
-  static SessionController get instance => _instance;
-  String? userId;
-  String? token;
-  Future<bool> isLoggedIn() async {
-    await loadSession();
-    return userId != null && token != null;
-  }
-
-  Future<void> setSession(String userId, String token) async {
-    this.userId = userId;
-    this.token = token;
-
-    const storage = FlutterSecureStorage();
-
-    await storage.write(key: 'userId', value: userId);
-    await storage.write(key: 'token', value: token);
-  }
-
-  Future<void> loadSession() async {
-    const storage = FlutterSecureStorage();
-
-    userId = await storage.read(key: 'userId');
-    token = await storage.read(key: 'token');
-  }
-
-  Future<void> clearSession() async {
-    userId = null;
-    token = null;
-
-    const storage = FlutterSecureStorage();
-    await storage.delete(key: 'userId');
-    await storage.delete(key: 'token');
-  }
-
-  Future<bool> login(String username, String password) async {
-    final response = await http.post(
-      Uri.parse('https://dummyjson.com/docs/auth'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        "username": username,
-        "password": password,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      print('statusCode');
-      final data = jsonDecode(response.body);
-      await SessionController.instance.setSession(
-        data['userId'],
-        data['token'],
-      );
-
-      return true;
-    }
-
-    return false;
-  }
-}
+//
+//
+//
+//
+//
+//
+//
+//
+// }
 
 
 

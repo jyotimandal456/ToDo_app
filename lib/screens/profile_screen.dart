@@ -132,13 +132,11 @@ class ProfileScreen extends StatelessWidget {
                   onTap: () {},
                 ),
               ),
-
               SizedBox(height: 30),
               ElevatedButton.icon(
                   onPressed: () async {
-
-                    await SessionController.instance.clearSession();
-
+                    provider.clearControllers();
+                   await HomeProvider.instance.clearSession();
                     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => Homescreen(),), (route) => false,);
                   },
                 icon: Icon(Icons.logout),

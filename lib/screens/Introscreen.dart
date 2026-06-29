@@ -23,11 +23,11 @@ class _HomescreenState extends State<Homescreen> {
     checkSession();
   }
   Future<void> checkSession() async {
-    final session = SessionController.instance;
+    final session = HomeProvider.instance;
     await session.loadSession();
     Timer( Duration(seconds: 2), () {if (!mounted)
       return;
-      if (session.userId == null) {Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => LoginScreen(),), (route) => false);
+      if (session.acessToken == null) {Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => LoginScreen(),), (route) => false);
       } else {
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) =>  Mainscreen(),), (route) => false,
         );

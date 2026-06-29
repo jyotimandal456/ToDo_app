@@ -14,8 +14,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  late final HomeProvider sessionProvider = Provider.of<HomeProvider>(context,listen: false);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
                  SizedBox(height: 20),
 
                 TextField(
-                  controller: usernameController,
+                  controller: sessionProvider.usernameController,
                   decoration: InputDecoration(
                     labelText: "Username",
                     prefixIcon:  Icon(Icons.person),
@@ -66,14 +65,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-
                 ),
-
                 SizedBox(height: 15),
-
                 TextField(
                   obscureText: true,
-                  controller: passwordController,
+                  controller: sessionProvider.passwordController,
                   decoration: InputDecoration(
                     labelText: "Password",
                     prefixIcon:  Icon(Icons.lock),
@@ -83,29 +79,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                 ),
-
                  SizedBox(height: 20),
-
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                      onPressed: () async {
-                        String username = usernameController.text.trim();
-                        String password = passwordController.text.trim();
-
-                        final provider = Provider.of<HomeProvider>(context, listen: false,);
-                        bool success = await SessionController.instance.login(
-                          username,
-                          password,
-                        );
-                        if (success) {Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) =>  Mainscreen(),),);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Invalid username or password"),
-                            ),
-                          );
-                        }
+                      onPressed: () {
+                        sessionProvider.login(
+                            sessionProvider.usernameController.value.text,
+                            sessionProvider.passwordController.value.text, context);
                       },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:CustomColors.appBar(context),
