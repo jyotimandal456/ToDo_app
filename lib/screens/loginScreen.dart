@@ -83,10 +83,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         sessionProvider.login(
                             sessionProvider.usernameController.value.text,
-                            sessionProvider.passwordController.value.text, context);
+                            sessionProvider.passwordController.value.text,
+                            context);
+                        await sessionProvider.refreshToken(context);
+                        await sessionProvider.fetchProfile();
+
                       },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:CustomColors.appBar(context),
