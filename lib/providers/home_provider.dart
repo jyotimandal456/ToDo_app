@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart' as stroage;
@@ -9,6 +10,7 @@ import 'package:numberpicker/numberpicker.dart';
 import 'package:intl/intl.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:untitled/screens/loginScreen.dart';
 import 'package:untitled/screens/mainscreen.dart';
 
 class HomeProvider extends ChangeNotifier {
@@ -62,6 +64,37 @@ class HomeProvider extends ChangeNotifier {
   static final HomeProvider _instance = HomeProvider();
   static HomeProvider get instance => _instance;
 
+  Future<void> login(
+      String username,
+      String password,
+      BuildContext context,
+      ) async {
+    final Dio dio = Dio();
+
+    try {
+      Response response = await dio.post("https://dummyjson.com/auth/login",
+        data: {
+          "username": username,
+          "password": password,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        _accessToken = response.data["accessToken"];
+
+        await setSession(_accessToken!);
+
+        await fetchProfile();
+
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Mainscreen(),
+          ),
+        );
+      }
+    } on DioException catch (e) {
+      print(e.response?.data);
+    }
+  }
+
   // void login(String username,String password,context) async{
   //   http.Response response =await http.post(Uri.parse("https://dummyjson.com/auth/login"),
   //       headers: {'content-type':'application/json'},
@@ -100,30 +133,50 @@ class HomeProvider extends ChangeNotifier {
   //   print(response.statusCode);
   //   print(_accessToken);
   // }
-  void login(String username, String password, context) async {
-    final response = await http.post(Uri.parse('https://dummyjson.com/auth/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        "username": username,
-        "password": password,
-      }),
-    );
-    if (response.statusCode == 200) {
 
-      Navigator.push(context, MaterialPageRoute(builder: (context)=> Mainscreen())
-      );
-    }
-    print(response.statusCode);
-    print(username);
-    print(password);
-    print(response.body);
+  // void login(String username, String password, context) async {
+  //   final response = await http.post(Uri.parse('https://dummyjson.com/auth/login'),
+  //     headers: {'Content-Type': 'application/json'},
+  //     body: jsonEncode({
+  //       "username": username,
+  //       "password": password,
+  //     }),
+  //   );
+  //   if (response.statusCode == 200) {
+  //
+  //     Navigator.push(context, MaterialPageRoute(builder: (context)=> Mainscreen())
+  //     );
+  //   }
+  //   print(response.statusCode);
+  //   print(username);
+  //   print(password);
+  //   print(response.body);
+  //   notifyListeners();
+  // }
+
+  Future<void> fetchProfile() async {
+    await loadSession();
+
+    final Dio dio = Dio();
+
+    Response response = await dio.get("https://dummyjson.com/auth/me",
+      options: Options(
+        headers: {
+          "Authorization": "Bearer $_accessToken",
+        },
+      ),
+    );
+    _dataa = response.data;
     notifyListeners();
   }
 
+  Future<void> setSession(String accessToken) async {
+    const storage = FlutterSecureStorage();
+    await storage.write(
+      key: "accessToken",
+      value: accessToken,
+    );
 
-  void setSession(String accessToken,)async{
-    const storage =FlutterSecureStorage();
-    await storage.write(key: "accessToken",value: accessToken);
     notifyListeners();
   }
 
@@ -145,16 +198,41 @@ class HomeProvider extends ChangeNotifier {
     // await storage.delete(key: 'userId');
     // await storage.delete(key: 'token');
   }
+  Future<String?> refreshToken(BuildContext context) async {
+    const storage = FlutterSecureStorage();
+    final refreshToken = await storage.read(key: "refreshToken");
+    final dio = Dio();
+    final response = await dio.post(
+      "https://dummyjson.com/auth/refresh",
+      data: {"refreshToken": refreshToken,
+      },
+    );
+    if (response.statusCode == 200) {
+      final newToken = response.data["accessToken"];
+      await storage.write(
+        key: "accessToken",
+        value: newToken,
+      );
+      return newToken;
+    }
+    if(response.statusCode==200|| response.statusCode==201){
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Mainscreen()));
+    }else{
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LoginScreen()));
+    }
+    notifyListeners();
+    return null;
+  }
 
 
-// Future<bool> isLoggedIn() async {
-//    await loadSession();
-//   return userId != null && token != null;
-//  }
+Future<bool> isLoggedIn() async {
+   await loadSession();
+  return userId != null && token != null;
+ }
 
-  // void toast() {
-  //   Fluttertoast.showToast(msg: 'Task created Successfuly');
-  // }
+  void toast() {
+    Fluttertoast.showToast(msg: 'Task created Successfuly');
+  }
 
   Uint8List? profileImage;
 
@@ -477,15 +555,6 @@ class HomeProvider extends ChangeNotifier {
   // }
 }
 
-//
-//
-//
-//
-//
-//
-//
-//
-// }
 
 
 

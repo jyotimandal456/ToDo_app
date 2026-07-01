@@ -62,13 +62,16 @@ class _DashbordscreenState extends State<Dashbordscreen> {
                   Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfileScreen(),));
                 },
 
-                child:   CircleAvatar(
-                  backgroundColor: Colors.purple.shade50,
-                  backgroundImage:provider.profileImage!=null?
-                  MemoryImage(provider.profileImage!):AssetImage('assets/OIP (5).jpeg') as ImageProvider,
-                  radius: 16,
-                 // child: Icon(Icons.person),
+                child:CircleAvatar(
+                  radius:18,
+                  backgroundColor: CustomColors.shadow(context),
+                  backgroundImage: provider.profileImage != null
+                      ? MemoryImage(provider.profileImage!)
+                      : provider.dataa["image"] != null
+                      ? NetworkImage(provider.dataa["image"])
+                      :  AssetImage("assets/OIP (5).jpeg") as ImageProvider,
                 ),
+
               ),
 
             );

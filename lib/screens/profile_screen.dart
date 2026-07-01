@@ -26,8 +26,9 @@ class ProfileScreen extends StatelessWidget {
                   CircleAvatar(
                     radius: 64,
                     backgroundColor: CustomColors.shadow(context),
-                    backgroundImage:provider.profileImage!=null?
-                    MemoryImage(provider.profileImage!):AssetImage('assets/OIP (5).jpeg') as ImageProvider,
+                    backgroundImage: provider.profileImage != null
+                        ? MemoryImage(provider.profileImage!) : provider.dataa['image'] != null
+                        ? NetworkImage(provider.dataa['image']) : AssetImage('assets/OIP (5).jpeg'),
                   ),
                   Positioned(
                     bottom: -5,
@@ -52,7 +53,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               SizedBox(height: 16),
               Text(
-                "Jyoti Mandal",
+                provider.dataa['username'] ?? "",
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -60,7 +61,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               SizedBox(height: 8),
               Text(
-                "jyoti@gmail.com",
+                provider.dataa['email'] ?? "",
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey.shade600,

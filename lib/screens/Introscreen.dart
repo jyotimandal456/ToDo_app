@@ -19,7 +19,9 @@ class _HomescreenState extends State<Homescreen> {
   @override
   @override
   void initState() {
+    final HomeProvider homeProvider=Provider.of<HomeProvider>(context,listen: false);
     super.initState();
+    homeProvider.refreshToken(context);
     checkSession();
   }
   Future<void> checkSession() async {
